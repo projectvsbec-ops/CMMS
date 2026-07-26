@@ -221,7 +221,8 @@ export function ScheduleBulkImport({ open, onOpenChange }: ScheduleBulkImportPro
           const newArea = await createAreaMutation.mutateAsync({
              name: area.location,
              department_id: area.department_id,
-             description: "Auto-created during bulk import"
+             description: "Auto-created during bulk import",
+             is_active: true
           });
           // @ts-ignore - we only need id, name, department_id for matching
           localAreas.push(newArea);
@@ -252,7 +253,6 @@ export function ScheduleBulkImport({ open, onOpenChange }: ScheduleBulkImportPro
             status: "active",
             joining_date: format(new Date(), "yyyy-MM-dd"),
             notes: row.designation ? `Designation: ${row.designation}` : null,
-            is_active: true,
           });
         }
       }
@@ -408,7 +408,7 @@ export function ScheduleBulkImport({ open, onOpenChange }: ScheduleBulkImportPro
                     <Label className="whitespace-nowrap text-blue-900 dark:text-blue-300 font-semibold">
                       Assign to Department:
                     </Label>
-                    <Select value={selectedDepartmentId} onValueChange={setSelectedDepartmentId}>
+                    <Select value={selectedDepartmentId} onValueChange={(val) => setSelectedDepartmentId(val || "")}>
                       <SelectTrigger className="w-[280px] bg-background">
                         <SelectValue placeholder="Select department..." />
                       </SelectTrigger>

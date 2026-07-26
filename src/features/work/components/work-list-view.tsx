@@ -6,7 +6,7 @@ import { useWorkTasks, useBulkUpdateWorkTasks, useUpdateWorkTask } from "../quer
 import { DataTable, DataTableColumn } from "@/components/shared/data-table";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MoreHorizontal, AlertCircle, Trash2, CheckCircle2 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -149,8 +149,8 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
           <span className="text-sm font-medium ml-2 text-primary">{selectedIds.length} tasks selected</span>
           <div className="flex gap-2">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">Change Status</Button>
+              <DropdownMenuTrigger className={buttonVariants({ variant: "outline", size: "sm" })}>
+                Change Status
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>Set Status</DropdownMenuLabel>
@@ -162,8 +162,8 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
             </DropdownMenu>
 
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">Change Priority</Button>
+              <DropdownMenuTrigger className={buttonVariants({ variant: "outline", size: "sm" })}>
+                Change Priority
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuLabel>Set Priority</DropdownMenuLabel>

@@ -127,7 +127,7 @@ export function DepartmentScheduleTimetable({ departmentId }: DepartmentSchedule
                 <tr key={row.worker.id} className="bg-card border-b border-border hover:bg-muted/50 transition-colors">
                   <td className="px-4 py-3 border-r border-border sticky left-0 bg-card z-10 font-medium text-center shadow-[1px_0_0_var(--border)]">
                     <p>{row.worker.name}</p>
-                    <p className="text-[10px] text-muted-foreground font-normal">{row.worker.designation || "Worker"}</p>
+                    <p className="text-[10px] text-muted-foreground font-normal">{row.worker.notes ? row.worker.notes.replace('Designation: ', '') : "Worker"}</p>
                   </td>
                   <td className="px-4 py-3 border-r border-border sticky left-48 bg-card z-10 text-center font-medium shadow-[1px_0_0_var(--border)]">
                     {row.worker.area?.name || "-"}

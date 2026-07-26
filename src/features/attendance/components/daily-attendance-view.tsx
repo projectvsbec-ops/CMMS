@@ -59,7 +59,7 @@ export function DailyAttendanceView({ initialDate = new Date(), departmentId }: 
   };
 
   const handleSave = async () => {
-    const recordsToSave: AttendanceInsert[] = attendanceData
+    const recordsToSave: AttendanceInsert[] = (attendanceData || [])
       .filter((item) => draft[item.worker.id]?.status != null)
       .map((item) => ({
         worker_id: item.worker.id,
