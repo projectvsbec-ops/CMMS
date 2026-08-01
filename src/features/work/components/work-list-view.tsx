@@ -303,7 +303,7 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-2 border-t mt-3">
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t mt-3">
                   {item.status !== "completed" && (
                     <Button 
                       variant="outline" 

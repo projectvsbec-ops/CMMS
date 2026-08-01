@@ -133,14 +133,16 @@ export default function WorkTaskDetailsPage() {
                 
                 <div>
                   <h4 className="text-sm font-semibold text-muted-foreground mb-1 flex items-center gap-1.5">
-                    <User className="h-4 w-4" /> Assigned Worker
+                    <User className="h-4 w-4" /> Assigned Manager
                   </h4>
-                  {task.worker ? (
+                  {task.manager ? (
                     <div>
-                      <p className="font-medium text-sm hover:underline cursor-pointer" onClick={() => router.push(`/workers/${task.worker_id}`)}>
-                        {task.worker.name}
+                      <p className="font-medium text-sm">
+                        {task.manager.name}
                       </p>
-                      <p className="text-sm text-muted-foreground">{task.worker.employee_id}</p>
+                      {task.manager.employee_id && (
+                        <p className="text-sm text-muted-foreground">{task.manager.employee_id}</p>
+                      )}
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground italic">Unassigned</p>
