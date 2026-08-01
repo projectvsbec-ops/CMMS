@@ -8,7 +8,6 @@ import {
   SheetTitle,
   SheetFooter,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 
 interface FormSheetProps {
@@ -44,12 +43,12 @@ export function FormSheet({
             <SheetDescription>{description}</SheetDescription>
           )}
         </SheetHeader>
-        <ScrollArea className="flex-1">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <form id="sheet-form" onSubmit={onSubmit} className="px-6 py-4">
             {children}
           </form>
-        </ScrollArea>
-        <SheetFooter className="p-6 border-t shrink-0">
+        </div>
+        <SheetFooter className="p-6 border-t shrink-0 bg-background">
           <Button type="submit" form="sheet-form" disabled={isPending}>
             {isPending ? "Saving..." : "Save Changes"}
           </Button>
