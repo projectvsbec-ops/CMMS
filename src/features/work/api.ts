@@ -34,6 +34,7 @@ export async function getWorkTasks(filters?: WorkTaskFilters) {
       department:departments(*),
       area:areas(*),
       worker:workers(*),
+      manager:managers(*),
       category:task_categories(*)
     `)
     .order("created_at", { ascending: false });
@@ -68,6 +69,7 @@ export async function getWorkTaskById(id: string) {
       department:departments(*),
       area:areas(*),
       worker:workers(*),
+      manager:managers(*),
       category:task_categories(*)
     `)
     .eq("id", id)

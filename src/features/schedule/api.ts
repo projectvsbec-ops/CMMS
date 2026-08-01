@@ -185,6 +185,7 @@ export async function checkAndGeneratePreventiveMaintenance() {
         department_id: pm.department_id,
         area_id: pm.area_id,
         worker_id: pm.assigned_worker_id,
+        manager_id: null,
         category_id: workTaskTemplate.category_id || null,
         priority: workTaskTemplate.priority || "medium",
         status: "pending",

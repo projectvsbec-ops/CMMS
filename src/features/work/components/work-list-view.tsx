@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { format, isPast, isToday } from "date-fns";
 import { useWorkTasks, useBulkUpdateWorkTasks, useUpdateWorkTask } from "../queries";
 import { DataTable, DataTableColumn } from "@/components/shared/data-table";
@@ -21,11 +21,30 @@ interface WorkListViewProps {
 }
 
 export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewProps) {
-  const { data: tasks, isLoading } = useWorkTasks(filters);
+  const { data: rawTasks, isLoading } = useWorkTasks(filters);
   const bulkUpdateMutation = useBulkUpdateWorkTasks();
   const updateMutation = useUpdateWorkTask();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  // Sort tasks by priority (critical > high > medium > low) and then by created_at (newest first)
+  const tasks = React.useMemo(() => {
+    if (!rawTasks) return [];
+    
+    const priorityWeight = {
+      critical: 4,
+      high: 3,
+      medium: 2,
+      low: 1,
+    };
+
+    return [...rawTasks].sort((a, b) => {
+      const weightDiff = (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0);
+      if (weightDiff !== 0) return weightDiff;
+      
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [rawTasks]);
 
   const toggleAll = (checked: boolean) => {
     if (!tasks) return;
@@ -102,12 +121,12 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
       ),
     },
     {
-      key: "worker",
-      header: "Assigned To",
-      cell: (item) => item.worker ? (
+      key: "manager",
+      header: "Manager",
+      cell: (item) => item.manager ? (
         <div className="text-sm">
-          <p>{item.worker.name}</p>
-          <p className="text-xs text-muted-foreground">{item.worker.employee_id}</p>
+          <p>{item.manager.name}</p>
+          <p className="text-xs text-muted-foreground">{item.manager.employee_id || "No ID"}</p>
         </div>
       ) : (
         <span className="text-xs text-muted-foreground italic">Unassigned</span>
@@ -139,6 +158,11 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
       key: "target_date",
       header: "Target",
       cell: (item) => item.target_date ? format(new Date(item.target_date), "MMM dd, yyyy") : "-",
+    },
+    {
+      key: "created_at",
+      header: "Created",
+      cell: (item) => format(new Date(item.created_at), "MMM dd, yyyy"),
     },
   ];
 
@@ -177,31 +201,121 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
         </div>
       )}
 
-      <DataTable
-        data={tasks || []}
-        columns={columns}
-        isLoading={isLoading}
-        emptyMessage="No tasks found matching your filters."
-        onRowClick={(item) => onViewTask(item)}
-        actions={(item) => [
-          {
-            label: "Edit",
-            icon: <MoreHorizontal className="h-4 w-4" />,
-            onClick: () => onEditTask(item),
-          },
-          ...(item.status !== "completed" ? [{
-            label: "Mark Complete",
-            icon: <CheckCircle2 className="h-4 w-4" />,
-            onClick: () => handleQuickAction(item, "completed", "Quick marked task as completed"),
-          }] : []),
-          ...(item.status !== "cancelled" ? [{
-            label: "Cancel",
-            icon: <Trash2 className="h-4 w-4" />,
-            onClick: () => handleQuickAction(item, "cancelled", "Quick cancelled task"),
-            destructive: true,
-          }] : [])
-        ]}
-      />
+      <div className="hidden md:block">
+        <DataTable
+          data={tasks || []}
+          columns={columns}
+          isLoading={isLoading}
+          emptyMessage="No tasks found matching your filters."
+          onRowClick={(item) => onViewTask(item)}
+          actions={(item) => [
+            {
+              label: "Edit",
+              icon: <MoreHorizontal className="h-4 w-4" />,
+              onClick: () => onEditTask(item),
+            },
+            ...(item.status !== "completed" ? [{
+              label: "Mark Complete",
+              icon: <CheckCircle2 className="h-4 w-4" />,
+              onClick: () => handleQuickAction(item, "completed", "Quick marked task as completed"),
+            }] : []),
+            ...(item.status !== "cancelled" ? [{
+              label: "Cancel",
+              icon: <Trash2 className="h-4 w-4" />,
+              onClick: () => handleQuickAction(item, "cancelled", "Quick cancelled task"),
+              destructive: true,
+            }] : [])
+          ]}
+        />
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden grid grid-cols-1 gap-4">
+        {isLoading ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">Loading...</div>
+        ) : tasks.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">No tasks found matching your filters.</div>
+        ) : (
+          tasks.map(item => {
+            const isOverdue = item.target_date && isPast(new Date(item.target_date)) && !isToday(new Date(item.target_date)) && item.status !== "completed" && item.status !== "cancelled";
+            
+            return (
+              <div 
+                key={item.id} 
+                className="bg-card border rounded-xl p-4 shadow-sm space-y-3 cursor-pointer active:scale-[0.98] transition-transform"
+                onClick={() => onViewTask(item)}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-semibold text-sm">{item.task_number}</span>
+                      <StatusBadge type="priority" value={item.priority} />
+                    </div>
+                    <p className="text-sm font-medium leading-tight">{item.title}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <StatusBadge type="task" value={item.status} />
+                    {isOverdue && (
+                      <Badge variant="destructive" className="text-[10px] px-1 py-0 h-4 uppercase">
+                        <AlertCircle className="h-3 w-3 mr-1" /> Overdue
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-y-2 text-xs text-muted-foreground">
+                  <div>
+                    <p className="font-medium text-foreground mb-0.5">Location</p>
+                    <p>{item.department?.name || "-"}</p>
+                    <p className="truncate max-w-[120px]">{item.area?.name || "-"}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground mb-0.5">Manager</p>
+                    <p>{item.manager?.name || "Unassigned"}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground mb-0.5">Created Date</p>
+                    <p>{format(new Date(item.created_at), "MMM dd")}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium text-foreground mb-0.5">Target Date</p>
+                    <p>{item.target_date ? format(new Date(item.target_date), "MMM dd") : "-"}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-2 border-t mt-3">
+                  {item.status !== "completed" && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 h-8 text-xs bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 hover:text-emerald-700 border-emerald-500/20"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQuickAction(item, "completed", "Quick marked task as completed");
+                      }}
+                    >
+                      <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                      Complete
+                    </Button>
+                  )}
+                  <Button 
+                    variant="secondary" 
+                    size="sm" 
+                    className="flex-1 h-8 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditTask(item);
+                    }}
+                  >
+                    <MoreHorizontal className="h-3.5 w-3.5 mr-1.5" />
+                    Edit
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
     </div>
   );
 }

@@ -55,6 +55,23 @@ export interface Worker {
   updated_at: string;
 }
 
+export type ManagerStatus = "active" | "inactive" | "on_leave";
+
+export interface Manager {
+  id: string;
+  employee_id: string | null;
+  name: string;
+  department_id: string;
+  phone: string | null;
+  email: string | null;
+  joining_date: string;
+  status: ManagerStatus;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Attendance {
   id: string;
   worker_id: string;
@@ -80,6 +97,7 @@ export interface WorkTask {
   department_id: string;
   area_id: string | null;
   worker_id: string | null;
+  manager_id: string | null;
   category_id: string | null;
   priority: TaskPriority;
   status: TaskStatus;
@@ -205,9 +223,10 @@ export interface AttendanceWithWorker extends Attendance {
 }
 
 export interface WorkTaskWithRelations extends WorkTask {
-  worker?: Worker;
   department?: Department;
   area?: Area;
+  worker?: Worker;
+  manager?: Manager;
   category?: TaskCategory;
 }
 
@@ -238,25 +257,19 @@ export interface PreventiveMaintenanceWithRelations extends PreventiveMaintenanc
 export type DepartmentInsert = Omit<Department, "id" | "created_at" | "updated_at">;
 export type AreaInsert = Omit<Area, "id" | "created_at" | "updated_at">;
 export type WorkerInsert = Omit<Worker, "id" | "created_at" | "updated_at">;
-export type AttendanceInsert = Omit<
-  Attendance,
-  "id" | "created_at" | "updated_at"
->;
-export type WorkTaskInsert = Omit<
-  WorkTask,
-  "id" | "task_number" | "created_at" | "updated_at"
->;
-export type WorkTaskUpdate = Partial<WorkTaskInsert> & { id: string };
-export type ScheduleTemplateInsert = Omit<ScheduleTemplate, "id" | "created_at" | "updated_at">;
-export type WorkerScheduleInsert = Omit<WorkerSchedule, "id" | "created_at" | "updated_at">;
+export type AttendanceInsert = Omit<Attendance, "id" | "created_at" | "updated_at"> & { id?: string };
+export type WorkTaskInsert = Omit<WorkTask, "id" | "task_number" | "created_at" | "updated_at"> & { id?: string };
+export type WorkTaskUpdate = Partial<WorkTaskInsert>;
+export type ScheduleTemplateInsert = Omit<ScheduleTemplate, "id" | "created_at" | "updated_at"> & { id?: string };
+export type WorkerScheduleInsert = Omit<WorkerSchedule, "id" | "created_at" | "updated_at"> & { id?: string };
 export type WorkerScheduleUpdate = Partial<WorkerScheduleInsert> & { id: string };
-export type PreventiveMaintenanceInsert = Omit<PreventiveMaintenance, "id" | "created_at" | "updated_at">;
-export type PreventiveMaintenanceUpdate = Partial<PreventiveMaintenanceInsert> & { id: string };
-export type InventoryItemInsert = Omit<
-  InventoryItem,
-  "id" | "item_code" | "created_at" | "updated_at" | "current_stock"
->;
-export type InventoryTransactionInsert = Omit<InventoryTransaction, "id" | "created_at">;
+export type PreventiveMaintenanceInsert = Omit<PreventiveMaintenance, "id" | "created_at" | "updated_at"> & { id?: string };
+export type PreventiveMaintenanceUpdate = Partial<PreventiveMaintenanceInsert>;
+export type InventoryItemInsert = Omit<InventoryItem, "id" | "item_code" | "created_at" | "updated_at" | "current_stock"> & { id?: string };
+export type InventoryItemUpdate = Partial<InventoryItemInsert>;
+export type InventoryTransactionInsert = Omit<InventoryTransaction, "id" | "created_at"> & { id?: string };
+export type ManagerInsert = Omit<Manager, "id" | "created_at" | "updated_at"> & { id?: string };
+export type ManagerUpdate = Partial<ManagerInsert>;
 export type ActivityLogInsert = Omit<ActivityLog, "id" | "created_at">;
 
 // ---------- UI-Only Types ----------

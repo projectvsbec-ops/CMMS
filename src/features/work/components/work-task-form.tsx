@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 
 import { useDepartments } from "@/features/departments/queries";
 import { useAreas } from "@/features/areas/queries";
-import { useWorkers } from "@/features/workers/queries";
+import { useManagers } from "@/features/managers/queries";
 import { useTaskCategories, useCreateWorkTask, useUpdateWorkTask } from "../queries";
 import { TASK_PRIORITIES } from "@/lib/constants";
 import type { WorkTaskWithRelations } from "@/types";
@@ -30,7 +30,7 @@ const formSchema = z.object({
   description: z.string().optional().nullable(),
   department_id: z.string().min(1, "Department is required."),
   area_id: z.string().optional().nullable(),
-  worker_id: z.string().optional().nullable(),
+  manager_id: z.string().optional().nullable(),
   category_id: z.string().optional().nullable(),
   priority: z.enum(["low", "medium", "high", "critical"]),
   target_date: z.string().optional().nullable(),
@@ -51,7 +51,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
 
   const { data: departments } = useDepartments();
   const { data: areas } = useAreas();
-  const { data: workers } = useWorkers();
+  const { data: managers } = useManagers();
   const { data: categories } = useTaskCategories();
 
   const createMutation = useCreateWorkTask();
@@ -64,7 +64,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
       description: "",
       department_id: "",
       area_id: "",
-      worker_id: "",
+      manager_id: "",
       category_id: "",
       priority: "medium",
       target_date: "",
@@ -81,7 +81,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
           description: task.description || "",
           department_id: task.department_id,
           area_id: task.area_id || "",
-          worker_id: task.worker_id || "",
+          manager_id: task.manager_id || "",
           category_id: task.category_id || "",
           priority: task.priority,
           target_date: task.target_date || "",
@@ -94,7 +94,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
           description: "",
           department_id: "",
           area_id: "",
-          worker_id: "",
+          manager_id: "",
           category_id: "",
           priority: "medium",
           target_date: "",
@@ -105,10 +105,10 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
     }
   }, [open, task, form]);
 
-  // Filter areas/workers by selected department
+  // Filter areas/managers by selected department
   const selectedDept = form.watch("department_id");
   const filteredAreas = areas?.filter((a) => a.department_id === selectedDept) || [];
-  const filteredWorkers = workers?.filter((w) => w.department_id === selectedDept && w.status === "active") || [];
+  const filteredManagers = managers?.filter((m) => m.department_id === selectedDept && m.status === "active") || [];
 
   const onSubmit = async (values: FormValues) => {
     const payload = {
@@ -116,13 +116,13 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
       description: values.description || null,
       department_id: values.department_id,
       area_id: values.area_id || null,
-      worker_id: values.worker_id || null,
+      manager_id: values.manager_id || null,
       category_id: values.category_id || null,
       priority: values.priority,
       target_date: values.target_date || null,
       identified_by: values.identified_by || null,
       remarks: values.remarks || null,
-      status: task?.status || (values.worker_id ? "assigned" : "pending"), // auto transition based on worker
+      status: task?.status || (values.manager_id ? "assigned" : "pending"), // auto transition based on manager
     };
 
     if (isEditing && task) {
@@ -182,7 +182,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Department</FormLabel>
-                  <Select onValueChange={(val) => { field.onChange(val); form.setValue("area_id", ""); form.setValue("worker_id", ""); }} value={field.value}>
+                  <Select onValueChange={(val) => { field.onChange(val); form.setValue("area_id", ""); form.setValue("manager_id", ""); }} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select dept">
@@ -279,21 +279,21 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
 
           <FormField
             control={form.control}
-            name="worker_id"
+            name="manager_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Assign Worker</FormLabel>
+                <FormLabel>Assign Manager</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value || ""} disabled={!selectedDept}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select worker (optional)">
-                        {field.value ? (filteredWorkers.find(w => w.id === field.value)?.name || "Select worker (optional)") : "Select worker (optional)"}
+                      <SelectValue placeholder="Select manager (optional)">
+                        {field.value ? (filteredManagers.find(m => m.id === field.value)?.name || "Select manager (optional)") : "Select manager (optional)"}
                       </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {filteredWorkers.map((w) => (
-                      <SelectItem key={w.id} value={w.id}>{w.name} ({w.employee_id})</SelectItem>
+                    {filteredManagers.map((m) => (
+                      <SelectItem key={m.id} value={m.id}>{m.name} {m.employee_id ? `(${m.employee_id})` : ""}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

@@ -45,6 +45,7 @@ export const NAV_ITEMS = [
   { title: "Departments", href: "/departments", icon: "Building2" },
   { title: "Areas", href: "/areas", icon: "Map" },
   { title: "Workers", href: "/workers", icon: "Users" },
+  { title: "Managers", href: "/managers", icon: "UserCog" },
   { title: "Attendance", href: "/attendance", icon: "ClipboardCheck" },
   { title: "Work", href: "/work", icon: "Hammer" },
   { title: "Schedule", href: "/schedule", icon: "CalendarClock" },

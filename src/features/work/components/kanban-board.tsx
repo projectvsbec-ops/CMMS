@@ -201,7 +201,7 @@ function KanbanCard({ task, onClick }: { task: WorkTaskWithRelations; onClick: (
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 truncate pr-2">
                 <User className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{task.worker?.name || "Unassigned"}</span>
+                <span className="truncate">{task.manager?.name || "Unassigned"}</span>
               </div>
               
               {task.target_date && (
