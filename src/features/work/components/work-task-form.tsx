@@ -175,7 +175,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
             )}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="department_id"
@@ -227,7 +227,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="category_id"
@@ -302,7 +302,7 @@ export function WorkTaskForm({ open, onOpenChange, task }: WorkTaskFormProps) {
             )}
           />
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
               name="target_date"
