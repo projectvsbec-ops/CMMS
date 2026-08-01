@@ -116,6 +116,17 @@ export async function bulkUpdateWorkTasks(ids: string[], updates: Partial<WorkTa
   return data;
 }
 
+export async function deleteWorkTask(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase
+    .from("work_tasks")
+    .delete()
+    .eq("id", id);
+
+  if (error) throw error;
+  return true;
+}
+
 // ---------------- Dashboard Analytics ----------------
 
 export async function getDashboardStats() {

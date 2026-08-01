@@ -2,13 +2,14 @@
 
 import React, { useState } from "react";
 import { format, isPast, isToday } from "date-fns";
-import { useWorkTasks, useBulkUpdateWorkTasks, useUpdateWorkTask } from "../queries";
+import { useWorkTasks, useBulkUpdateWorkTasks, useUpdateWorkTask, useDeleteWorkTask } from "../queries";
 import { DataTable, DataTableColumn } from "@/components/shared/data-table";
+import { ConfirmDialog } from "@/components/shared/confirm-dialog";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MoreHorizontal, AlertCircle, Trash2, CheckCircle2 } from "lucide-react";
+import { MoreHorizontal, AlertCircle, Trash2, CheckCircle2, XCircle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import type { WorkTaskWithRelations, TaskStatus } from "@/types";
 import type { WorkTaskFilters } from "@/features/work/api";
@@ -24,8 +25,10 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
   const { data: rawTasks, isLoading } = useWorkTasks(filters);
   const bulkUpdateMutation = useBulkUpdateWorkTasks();
   const updateMutation = useUpdateWorkTask();
+  const deleteMutation = useDeleteWorkTask();
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [taskToDelete, setTaskToDelete] = useState<WorkTaskWithRelations | null>(null);
 
   // Sort tasks by priority (critical > high > medium > low) and then by created_at (newest first)
   const tasks = React.useMemo(() => {
@@ -80,6 +83,18 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
       toast.add({ title: "Status Updated", description: `${task.task_number} is now ${status}.` });
     } catch (e) {
       toast.add({ title: "Error", description: "Failed to update task.", type: "error" });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!taskToDelete) return;
+    try {
+      await deleteMutation.mutateAsync(taskToDelete.id);
+      toast.add({ title: "Task Deleted", description: "The work task has been deleted permanently." });
+    } catch (e) {
+      toast.add({ title: "Error", description: "Failed to delete task.", type: "error" });
+    } finally {
+      setTaskToDelete(null);
     }
   };
 
@@ -221,10 +236,15 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
             }] : []),
             ...(item.status !== "cancelled" ? [{
               label: "Cancel",
-              icon: <Trash2 className="h-4 w-4" />,
+              icon: <XCircle className="h-4 w-4" />,
               onClick: () => handleQuickAction(item, "cancelled", "Quick cancelled task"),
+            }] : []),
+            {
+              label: "Delete",
+              icon: <Trash2 className="h-4 w-4" />,
+              onClick: () => setTaskToDelete(item),
               destructive: true,
-            }] : [])
+            }
           ]}
         />
       </div>
@@ -298,6 +318,20 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
                       Complete
                     </Button>
                   )}
+                  {item.status !== "cancelled" && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex-1 h-8 text-xs text-muted-foreground hover:bg-muted"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleQuickAction(item, "cancelled", "Quick cancelled task");
+                      }}
+                    >
+                      <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                      Cancel
+                    </Button>
+                  )}
                   <Button 
                     variant="secondary" 
                     size="sm" 
@@ -310,12 +344,35 @@ export function WorkListView({ filters, onEditTask, onViewTask }: WorkListViewPr
                     <MoreHorizontal className="h-3.5 w-3.5 mr-1.5" />
                     Edit
                   </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1 h-8 text-xs text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setTaskToDelete(item);
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                    Delete
+                  </Button>
                 </div>
               </div>
             );
           })
         )}
       </div>
+
+      <ConfirmDialog
+        open={!!taskToDelete}
+        onOpenChange={(open) => !open && setTaskToDelete(null)}
+        title="Delete Work Task"
+        description={`Are you sure you want to delete task ${taskToDelete?.task_number}? This action cannot be undone.`}
+        confirmLabel="Delete Task"
+        variant="destructive"
+        isLoading={deleteMutation.isPending}
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

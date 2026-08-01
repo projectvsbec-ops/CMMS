@@ -6,6 +6,7 @@ import {
   createWorkTask,
   updateWorkTask,
   bulkUpdateWorkTasks,
+  deleteWorkTask,
   getDashboardStats,
   WorkTaskFilters,
 } from "./api";
@@ -82,9 +83,7 @@ export function useUpdateWorkTask() {
       return data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: workKeys.task(variables.id) });
-      queryClient.invalidateQueries({ queryKey: workKeys.tasks() }); // invalidate all task lists
-      queryClient.invalidateQueries({ queryKey: workKeys.dashboard() });
+      queryClient.invalidateQueries({ queryKey: workKeys.all });
     },
   });
 }
@@ -102,6 +101,29 @@ export function useBulkUpdateWorkTasks() {
         entity_id: null,
         description: `Bulk updated ${ids.length} tasks`,
         metadata: { count: ids.length, updates },
+      }).catch(console.error);
+      
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: workKeys.all });
+    },
+  });
+}
+
+export function useDeleteWorkTask() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const data = await deleteWorkTask(id);
+      
+      logActivity({
+        action: "Deleted Task",
+        entity_type: "work_tasks",
+        entity_id: id,
+        description: "Deleted a work task",
+        metadata: { deleted: true },
       }).catch(console.error);
       
       return data;

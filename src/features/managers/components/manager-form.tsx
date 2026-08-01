@@ -121,7 +121,9 @@ export function ManagerForm({ manager, onSuccess }: ManagerFormProps) {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a department" />
+                      <SelectValue placeholder="Select a department">
+                        {field.value ? departments?.find(d => d.id === field.value)?.name || "Select a department" : "Select a department"}
+                      </SelectValue>
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
