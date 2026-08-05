@@ -45,10 +45,10 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
               <button
                 key="more"
                 onClick={onMoreClick}
-                className="flex flex-col items-center justify-center gap-0.5 py-1 px-2 text-muted-foreground active:scale-95 transition-transform"
+                className="flex flex-col items-center justify-center gap-1 py-1.5 px-3 rounded-2xl text-muted-foreground hover:bg-muted/50 active:scale-95 transition-all duration-200"
               >
                 <IconComponent className="h-5 w-5" />
-                <span className="text-[10px] font-medium">{item.title}</span>
+                <span className="text-[10px] font-medium mt-0.5">{item.title}</span>
               </button>
             );
           }
@@ -58,12 +58,16 @@ export function BottomNav({ onMoreClick }: BottomNavProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex flex-col items-center justify-center gap-0.5 py-1 px-2 active:scale-95 transition-transform",
-                isActive ? "text-primary" : "text-muted-foreground"
+                "flex flex-col items-center justify-center gap-1 py-1.5 px-3 rounded-2xl active:scale-95 transition-all duration-200",
+                isActive 
+                  ? "text-primary bg-primary/10" 
+                  : "text-muted-foreground hover:bg-muted/50"
               )}
             >
-              <IconComponent className="h-5 w-5" />
-              <span className="text-[10px] font-medium">{item.title}</span>
+              <IconComponent className={cn("h-5 w-5", isActive && "fill-primary/20")} />
+              <span className={cn("text-[10px] mt-0.5 transition-all duration-200", isActive ? "font-bold" : "font-medium")}>
+                {item.title}
+              </span>
             </Link>
           );
         })}

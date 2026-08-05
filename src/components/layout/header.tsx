@@ -29,19 +29,12 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center gap-3 border-b bg-card/95 backdrop-blur-sm px-4 lg:px-6">
-      {/* Mobile menu toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="lg:hidden h-9 w-9"
-        onClick={onMenuClick}
-      >
-        <Menu className="h-5 w-5" />
-        <span className="sr-only">Toggle menu</span>
-      </Button>
+      <div className="flex-1 flex justify-start items-center">
+        {/* Title/Logo for mobile */}
+        <span className="font-bold text-primary lg:hidden">CMMS</span>
+      </div>
 
-      {/* Search Bar */}
-      <div className="flex-1 flex justify-end md:justify-center px-2">
+      <div className="flex items-center gap-1 sm:gap-2">
         <GlobalSearch />
       </div>
 

@@ -12,7 +12,7 @@ export function KpiGrid() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <Skeleton key={i} className="h-[120px] w-full rounded-xl" />
         ))}
@@ -23,7 +23,7 @@ export function KpiGrid() {
   if (!kpis) return null;
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <StatCard
         title="Total Workers"
         value={kpis.totalWorkers}
