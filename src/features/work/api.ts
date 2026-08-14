@@ -91,6 +91,17 @@ export async function createWorkTask(task: WorkTaskInsert) {
   return data;
 }
 
+export async function bulkCreateWorkTasks(tasks: WorkTaskInsert[]) {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("work_tasks")
+    .insert(tasks)
+    .select();
+
+  if (error) throw error;
+  return data;
+}
+
 export async function updateWorkTask(id: string, updates: Partial<WorkTaskInsert>) {
   const supabase = createClient();
   const { data, error } = await supabase

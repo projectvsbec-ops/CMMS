@@ -6,10 +6,12 @@ import { PageHeader } from "@/components/layout/page-header";
 import { WorkListView } from "@/features/work/components/work-list-view";
 import { KanbanBoard } from "@/features/work/components/kanban-board";
 import { WorkTaskForm } from "@/features/work/components/work-task-form";
+import { BulkUploadDialog } from "@/features/work/components/bulk-upload-dialog";
 import { SearchInput } from "@/components/shared/search-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, LayoutList, Kanban } from "lucide-react";
+import { Plus, LayoutList, Kanban, FileUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useDepartments } from "@/features/departments/queries";
 import { useWorkers } from "@/features/workers/queries";
 import { useTaskCategories } from "@/features/work/queries";
@@ -23,6 +25,7 @@ export default function WorkManagementPage() {
   const [view, setView] = useState<"list" | "kanban">("list");
   
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<WorkTaskWithRelations | null>(null);
 
   const { data: departments } = useDepartments();
@@ -60,7 +63,11 @@ export default function WorkManagementPage() {
           onClick: openCreateForm,
           icon: <Plus className="h-4 w-4 mr-2" />,
         }}
-      />
+      >
+        <Button variant="outline" onClick={() => setIsBulkUploadOpen(true)} className="gap-2 bg-background">
+          <FileUp className="h-4 w-4" /> Bulk Upload
+        </Button>
+      </PageHeader>
 
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row gap-3 p-4 bg-muted/30 rounded-lg border shrink-0 overflow-x-auto">
@@ -150,6 +157,10 @@ export default function WorkManagementPage() {
         open={isFormOpen} 
         onOpenChange={setIsFormOpen} 
         task={taskToEdit} 
+      />
+      <BulkUploadDialog
+        open={isBulkUploadOpen}
+        onOpenChange={setIsBulkUploadOpen}
       />
     </div>
   );

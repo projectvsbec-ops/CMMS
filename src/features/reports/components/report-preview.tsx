@@ -39,8 +39,32 @@ export function ReportPreview({ data, isLoading, category, reportName }: ReportP
     );
   }
 
-  const handleExportCSV = () => exportToCSV(data, reportName);
-  const handleExportExcel = () => exportToExcel(data, reportName);
+  const formatWorkExport = (exportData: any[]) => {
+    return exportData.map((item, index) => ({
+      "S.no": index + 1,
+      "Nature of Work (Title)": item.title || "",
+      "Description": item.description || "",
+      "Department": item.department?.name || "",
+      "Area": item.area?.name || "",
+      "Category": item.category?.name || "",
+      "Priority": item.priority ? item.priority.charAt(0).toUpperCase() + item.priority.slice(1) : "",
+      "Assign Manager": item.manager?.name || "",
+      "Created Date": item.created_at ? format(new Date(item.created_at), "yyyy-MM-dd HH:mm") : "",
+      "Target Date": item.target_date ? format(new Date(item.target_date), "yyyy-MM-dd") : "",
+      "Identified By": item.identified_by || "",
+      "Admin Remarks": item.remarks || ""
+    }));
+  };
+
+  const handleExportCSV = () => {
+    const dataToExport = category === "Work" ? formatWorkExport(data) : data;
+    exportToCSV(dataToExport, reportName);
+  };
+  
+  const handleExportExcel = () => {
+    const dataToExport = category === "Work" ? formatWorkExport(data) : data;
+    exportToExcel(dataToExport, reportName);
+  };
 
   // Derive headers from first item
   const sample = data[0] || {};

@@ -6,6 +6,7 @@ import {
   createWorkTask,
   updateWorkTask,
   bulkUpdateWorkTasks,
+  bulkCreateWorkTasks,
   deleteWorkTask,
   getDashboardStats,
   WorkTaskFilters,
@@ -55,6 +56,27 @@ export function useCreateWorkTask() {
         entity_id: data.id,
         description: `Created new task: ${data.title}`,
         metadata: { title: data.title },
+      }).catch(console.error);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: workKeys.all });
+    },
+  });
+}
+
+export function useBulkCreateWorkTasks() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (tasks: WorkTaskInsert[]) => {
+      const data = await bulkCreateWorkTasks(tasks);
+      logActivity({
+        action: "Bulk Created Tasks",
+        entity_type: "work_tasks",
+        entity_id: null,
+        description: `Bulk created ${tasks.length} new tasks from Excel upload`,
+        metadata: { count: tasks.length },
       }).catch(console.error);
       return data;
     },
