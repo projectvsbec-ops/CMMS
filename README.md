@@ -23,13 +23,13 @@ graph TD
 
     Client["📱 Client App (Browser / PWA)"]:::ui
     
-    subgraph Frontend [Next.js App Router (React)]
+    subgraph Frontend["Next.js App Router (React)"]
         UI["🎨 Shadcn UI + Tailwind"]:::core
         State["🔄 TanStack Query (React Query)"]:::core
         Excel["📊 SheetJS (Excel Processor)"]:::core
     end
 
-    subgraph Backend [Backend as a Service]
+    subgraph Backend["Backend as a Service"]
         Auth["🔐 Supabase Auth"]:::db
         RLS["🛡️ Row Level Security"]:::db
         Postgres["🗄️ PostgreSQL Database"]:::db
