@@ -89,7 +89,7 @@ export function BulkUploadDialog({ open, onOpenChange }: BulkUploadDialogProps) 
 
             // Parse Dates
             let createdAt = row["Created Date"] ? new Date(row["Created Date"]).toISOString() : new Date().toISOString();
-            let targetDate = row["Target Date"] ? new Date(row["Target Date"]).toISOString() : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+            let targetDate = row["Target Date"] ? new Date(row["Target Date"]).toISOString() : null;
 
             const task: WorkTaskInsert = {
               title: row["Nature of Work (Title)"]?.toString() || "Untitled Task",
